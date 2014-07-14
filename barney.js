@@ -8,9 +8,8 @@
 
   var hooks = [];
 
-
   var barney = {};
-
+  exports = module.exports = barney;
 
 
   barney.hook = function (fn) {
@@ -22,7 +21,7 @@
   };
 
 
-  barney.hook.enable = function () {
+  barney.enable = function () {
     Module._load = function (request, parent, isMain) {
       var len, i, result;
 
@@ -38,7 +37,7 @@
   };
 
 
-  barney.hook.disable = function () {
+  barney.disable = function () {
     Module._load = originalLoadMethod;
   };
 
@@ -57,17 +56,7 @@
   };
 
 
-  barney.unload = function (module, resolve) {
-    if (arguments.length === 1) {
-      resolve = true;
-    }
-
-    if (resolve) {
-      module = Module._resolveFilename(module);
-    }
-
-    delete Module._cache[module];
-  };
+  barney.clear = barney.unhook;
 
 
   barney.moduleNotFound = function (message) {
@@ -80,6 +69,16 @@
   };
 
 
-  exports = module.exports = barney;
+  barney.unload = function (module, resolve) {
+    if (arguments.length === 1) {
+      resolve = true;
+    }
+
+    if (resolve) {
+      module = Module._resolveFilename(module);
+    }
+
+    delete Module._cache[module];
+  };
 
 })();
