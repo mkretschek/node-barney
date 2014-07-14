@@ -139,34 +139,4 @@
     throw(err);
   };
 
-
-  /**
-   * A helper for removing a module from the cache, forcing it to be reloaded
-   * the next time it's required.
-   *
-   * @param {string} module Name or path to the module that should be
-   *  unloaded.
-   *
-   * @param {boolean=} resolve If set to true (default), the module's name
-   *  or path will be resolved before removing it from the cache. This is
-   *  necessary to resolve paths to the right module. But, if you've hooked
-   *  a mockup or expect the module to be missing, set this to false to
-   *  avoid the module name resolution.
-   *
-   * @return {object} The barney object itself (allows chaining).
-   */
-  barney.unload = function (module, resolve) {
-    if (arguments.length === 1) {
-      resolve = true;
-    }
-
-    if (resolve) {
-      module = Module._resolveFilename(module);
-    }
-
-    delete Module._cache[module];
-
-    return this;
-  };
-
 })();
