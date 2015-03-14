@@ -107,11 +107,16 @@ exports.use = function (module, value, cache) {
     exports.intercept(value);
   }
 
-  return this;
+  return exports;
 };
 
 
 /**
+ * Hooks into the `require()` function.
+ * @returns {barney} Returns the `barney` module itself.
+ *
+ * @also
+ *
  * Adds a hook to the given module.
  *
  * @param {string} module
@@ -121,12 +126,18 @@ exports.use = function (module, value, cache) {
  * @returns {barney} Returns the `barney` module itself.
  */
 exports.hook = function (module, value) {
-  if (typeof module !== 'string') {
-    throw new TypeError('Invalid module');
+  if (!arguments.length) {
+    // Hook into `require()`
+    Module._load = hookedLoadMethod;
+  } else {
+    if (typeof module !== 'string') {
+      throw new TypeError('Invalid module');
+    }
+
+    hooks[resolve(module)] = value;
   }
 
-  hooks[resolve(module)] = value;
-  return this;
+  return exports;
 };
 
 
@@ -172,7 +183,7 @@ exports.intercept = function (module, interceptor, index) {
     addInterceptor(interceptor, index);
   }
 
-  return this;
+  return exports;
 };
 
 
@@ -187,7 +198,7 @@ exports.intercept = function (module, interceptor, index) {
  * @param {string} module
  * @returns {barney}
  */
-exports.restore = function (module) {
+exports.reset = function (module) {
   var resolved;
 
   if (module) {
@@ -200,30 +211,26 @@ exports.restore = function (module) {
     moduleInterceptors = {};
   }
 
-  return this;
-};
-
-
-/**
- * Activates the barney module.
- * @returns {barney}
- */
-exports.activate = function () {
-  Module._load = hookedLoadMethod;
-  return this;
+  return exports;
 };
 
 
 /**
  * Deactivates the barney module. This does **not** remove hooks nor
  * interceptors, it just restores the original loader function.
- * @see {@link .restore}
+ * @see {@link .reset}
+ * @see {@link .hook}
  * @returns {barney}
  */
-exports.deactivate = function () {
+exports.restore = function () {
   Module._load = originalLoadMethod;
-  return this;
+  return exports;
 };
+
+/**
+ * @alias .restore
+ */
+exports.unhook = exports.restore;
 
 
 /**
@@ -233,7 +240,7 @@ exports.deactivate = function () {
  */
 exports.unload = function (module) {
   delete require.cache[resolve(module)];
-  return this;
+  return exports;
 };
 
 /**
@@ -259,7 +266,7 @@ exports.notFound = function () {
 };
 
 
-exports.activate();
+exports.hook();
 
 
 

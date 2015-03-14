@@ -22,14 +22,17 @@ var ORIGINAL_TEST_MODULE = require(TEST_MODULE);
 
 describe('barney', function () {
   function reset() {
-    barney.restore();
+    barney.reset();
     barney.unload(TEST_MODULE);
   }
 
-  beforeEach(barney.activate);
+  beforeEach(function () {
+    barney.hook();
+  });
+
   beforeEach(reset);
   after(reset);
-  after(barney.deactivate);
+  after(barney.restore);
 
   it('is an object', function () {
     expect(barney).to.be.an('object');
@@ -89,6 +92,32 @@ describe('barney', function () {
 
 
   describe('API', function () {
+    describe('.hook()', function () {
+      it('is a function', function () {
+        expect(barney.hook).to.be.a('function');
+      });
+
+      it('activates the barney module', function () {
+        barney.restore();
+        expect(barney.isActive()).to.be.false;
+        barney.hook();
+        expect(barney.isActive()).to.be.true;
+      });
+
+      it('replaces the original load function', function () {
+        barney.restore();
+        expect(Module._load).to.equal(original);
+        barney.hook();
+        expect(Module._load).to.not.equal(original);
+      });
+
+      it('allows chaining', function () {
+        barney.restore();
+        expect(barney.hook()).to.equal(barney);
+      });
+    });
+
+
     describe('.hook(module, value)', function () {
       it('is a function', function () {
         expect(barney.hook).to.be.a('function');
@@ -449,9 +478,9 @@ describe('barney', function () {
 
 
 
-    describe('.restore()', function () {
+    describe('.reset()', function () {
       it('is a function', function () {
-        expect(barney.restore).to.be.a('function');
+        expect(barney.reset).to.be.a('function');
       });
 
       it('removes all interceptors', function () {
@@ -475,7 +504,7 @@ describe('barney', function () {
         interceptorAll.reset();
         interceptorFoo.reset();
 
-        barney.restore();
+        barney.reset();
 
         require(TEST_MODULE);
         expect(interceptorAll).to.not.have.been.called;
@@ -489,21 +518,21 @@ describe('barney', function () {
         expect(require('./package')).to.equal('package');
         expect(require(TEST_MODULE)).to.equal('foo');
 
-        barney.restore();
+        barney.reset();
 
         expect(require('./package')).not.to.equal('package');
         expect(require(TEST_MODULE)).to.equal(ORIGINAL_TEST_MODULE);
       });
 
       it('allows chaining', function () {
-        expect(barney.restore()).to.equal(barney);
+        expect(barney.reset()).to.equal(barney);
       });
     });
 
 
-    describe('.restore(module)', function () {
+    describe('.reset(module)', function () {
       it('is a function', function () {
-        expect(barney.restore).to.be.a('function');
+        expect(barney.reset).to.be.a('function');
       });
 
       it('removes all interceptors for the given module', function () {
@@ -525,7 +554,7 @@ describe('barney', function () {
         interceptorAll.reset();
         interceptorFoo.reset();
 
-        barney.restore(TEST_MODULE);
+        barney.reset(TEST_MODULE);
 
         require(TEST_MODULE);
         expect(interceptorAll).to.have.been.calledOnce;
@@ -539,7 +568,7 @@ describe('barney', function () {
         expect(require('./package')).to.equal('package');
         expect(require(TEST_MODULE)).to.equal('foo');
 
-        barney.restore(TEST_MODULE);
+        barney.reset(TEST_MODULE);
 
         expect(require('./package')).to.equal('package');
         expect(require(TEST_MODULE)).to.equal(ORIGINAL_TEST_MODULE);
@@ -547,50 +576,24 @@ describe('barney', function () {
 
       it('allows chaining', function () {
         barney.hook('foo', 'bar');
-        expect(barney.restore('foo')).to.equal(barney);
+        expect(barney.reset('foo')).to.equal(barney);
       });
     });
 
 
-    describe('.activate()', function () {
+    describe('.restore()', function () {
       it('is a function', function () {
-        expect(barney.activate).to.be.a('function');
-      });
-
-      it('activates the barney module', function () {
-        barney.deactivate();
-        expect(barney.isActive()).to.be.false;
-        barney.activate();
-        expect(barney.isActive()).to.be.true;
-      });
-
-      it('replaces the original load function', function () {
-        barney.deactivate();
-        expect(Module._load).to.equal(original);
-        barney.activate();
-        expect(Module._load).to.not.equal(original);
-      });
-
-      it('allows chaining', function () {
-        barney.deactivate();
-        expect(barney.activate()).to.equal(barney);
-      });
-    });
-
-
-    describe('.deactivate()', function () {
-      it('is a function', function () {
-        expect(barney.deactivate).to.be.a('function');
+        expect(barney.restore).to.be.a('function');
       });
 
       it('restores the original load function', function () {
         expect(Module._load).to.not.equal(original);
-        barney.deactivate();
+        barney.restore();
         expect(Module._load).to.equal(original);
       });
 
       it('allows chaining', function () {
-        expect(barney.deactivate()).to.equal(barney);
+        expect(barney.restore()).to.equal(barney);
       });
     });
 
@@ -601,12 +604,12 @@ describe('barney', function () {
       });
 
       it('returns true if while active', function () {
-        barney.activate();
+        barney.hook();
         expect(barney.isActive()).to.be.true;
       });
 
       it('returns false if not active', function () {
-        barney.deactivate();
+        barney.restore();
         expect(barney.isActive()).to.be.false;
       });
     });
