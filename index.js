@@ -316,10 +316,13 @@ function resolve(module) {
   try {
     return require.resolve(module);
   } catch (err) {
+    // As long as `module` is a string, this should be the only
+    // error thrown by `require.resolve()`
+    /* istanbul ignore else */
     if (err.code === 'MODULE_NOT_FOUND') {
       return module;
+    } else {
+      throw err;
     }
-
-    throw err;
   }
 }
