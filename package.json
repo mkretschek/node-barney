@@ -1,6 +1,6 @@
 {
   "name": "barney",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Intercept require calls",
   "main": "index.js",
   "scripts": {
