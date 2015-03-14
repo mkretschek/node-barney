@@ -1,13 +1,41 @@
 'use strict';
 
 var Module = require('module');
-
-var originalLoadMethod = Module._load;
-
 var hooks = Object.create(null);
 var interceptors = [];
 var moduleInterceptors = {};
 
+
+/**
+ * The `barney` module itself.
+ * @typedef {object} barney
+ */
+
+/**
+ * A module interceptor function. It accepts the same params as the original
+ * loader function.
+ * @see https://github.com/joyent/node/blob/master/lib/module.js#L275
+ * @typedef {function(request, parent, isMain)} Interceptor
+ */
+
+
+/**
+ * Original loader
+ * @private
+ */
+var originalLoadMethod = Module._load;
+
+
+/**
+ * Hooked loader.
+ *
+ * @see https://github.com/joyent/node/blob/master/lib/module.js#L275
+ * @param request
+ * @param parent
+ * @param isMain
+ * @returns {*}
+ * @private
+ */
 function hookedLoadMethod(request, parent, isMain) {
   var args = arguments;
   var resolved = resolve(request);
@@ -18,6 +46,47 @@ function hookedLoadMethod(request, parent, isMain) {
       originalLoadMethod.apply(Module, args);
 }
 
+/**
+ * A generic method for adding hooks and interceptors:
+ *
+ * Adds a generic interceptor that will be triggered in every call to
+ * `require()`.
+ *
+ * @param {Interceptor} module
+ * @returns {barney}
+ *
+ * @throws {TypeError} If an invalid interceptor is provided.
+ *
+ * @returns {barney} Returns the `barney` module itself.
+ *
+ *
+ * @also
+ *
+ *
+ * Adds a hook to a specific module.
+ *
+ * @param {string} module
+ * @param {*} value
+ *
+ * @throws {TypeError} If an invalid module name is provided.
+ *
+ * @returns {barney} Returns the `barney` module itself.
+ *
+ *
+ * @also
+ *
+ *
+ * Adds an interceptor to a specific module.
+ *
+ * @param {string} module
+ * @param {Interceptor} value
+ * @param {boolean} cache Cache must be **EXPLICITLY** set to `false`.
+ *
+ * @throws {TypeError} If an invalid module name is provided.
+ * @throws {TypeError} if an invalid interceptor is provided.
+ *
+ * @returns {barney} Returns the `barney` module itself.
+ */
 exports.use = function (module, value, cache) {
   if (typeof module === 'function') {
     value = module;
@@ -41,6 +110,16 @@ exports.use = function (module, value, cache) {
   return this;
 };
 
+
+/**
+ * Adds a hook to the given module.
+ *
+ * @param {string} module
+ * @param {*} value The value to be returned when `require`-ing the module.
+ * Beware that returning a falsy value will cause the hook to be ignored.
+ *
+ * @returns {barney} Returns the `barney` module itself.
+ */
 exports.hook = function (module, value) {
   if (typeof module !== 'string') {
     throw new TypeError('Invalid module');
@@ -51,6 +130,31 @@ exports.hook = function (module, value) {
 };
 
 
+/**
+ * Adds a generic interceptor (called by every call to `require()`).
+ *
+ * @param {Interceptor} interceptor
+ * @param {number} [index] Index at which the interceptor should be added.
+ *
+ * @throws {TypeError} If an invalid interceptor is provided
+ *
+ * @returns {barney}
+ *
+ *
+ * @also
+ *
+ *
+ * Adds an interceptor for a specific module.
+ *
+ * @param {string} module
+ * @param {Interceptor} interceptor
+ * @param {number} [index] Index at which the interceptor should be added.
+ *
+ * @throws {TypeError} If an invalid module is provided.
+ * @throws {TypeError} If an invalid interceptor is provided.
+ *
+ * @returns {barney}
+ */
 exports.intercept = function (module, interceptor, index) {
   if (arguments.length < 3 && typeof module === 'function') {
     index = interceptor;
@@ -72,7 +176,17 @@ exports.intercept = function (module, interceptor, index) {
 };
 
 
-
+/**
+ * Removes all hooks and interceptors.
+ * @returns {barney}
+ *
+ * @also
+ *
+ * Removes all hooks and interceptors for a specific module.
+ *
+ * @param {string} module
+ * @returns {barney}
+ */
 exports.restore = function (module) {
   var resolved;
 
@@ -89,27 +203,55 @@ exports.restore = function (module) {
   return this;
 };
 
+
+/**
+ * Activates the barney module.
+ * @returns {barney}
+ */
 exports.activate = function () {
   Module._load = hookedLoadMethod;
   return this;
 };
 
+
+/**
+ * Deactivates the barney module. This does **not** remove hooks nor
+ * interceptors, it just restores the original loader function.
+ * @see {@link .restore}
+ * @returns {barney}
+ */
 exports.deactivate = function () {
   Module._load = originalLoadMethod;
   return this;
 };
 
 
+/**
+ * Removes the cached module value from node's cache.
+ * @param module
+ * @returns {barney}
+ */
 exports.unload = function (module) {
   delete require.cache[resolve(module)];
   return this;
 };
 
+/**
+ * Checks if barney is active.
+ * @returns {boolean}
+ */
 exports.isActive = function () {
   return Module._load === hookedLoadMethod;
 };
 
 
+/**
+ * Throws a `module not found` error. Just a helper for simulating missing
+ * modules, e.g.:
+ *
+ *     barney.intercept('foo', barney.notFound);
+ *
+ */
 exports.notFound = function () {
   var err = new Error('Module not found');
   err.code = 'MODULE_NOT_FOUND';
@@ -117,16 +259,13 @@ exports.notFound = function () {
 };
 
 
-
-
-
 exports.activate();
-
 
 
 
 // HELPERS /////////////////////////////////////////////////////////////////////
 
+/** @private */
 function addModuleInterceptor(module, interceptor, index) {
   var resolved = resolve(module);
   var interceptors = moduleInterceptors[resolved];
@@ -139,6 +278,7 @@ function addModuleInterceptor(module, interceptor, index) {
 }
 
 
+/** @private */
 function addInterceptor(list, interceptor, index) {
   if (typeof list === 'function') {
     index = interceptor;
@@ -158,6 +298,7 @@ function addInterceptor(list, interceptor, index) {
 }
 
 
+/** @private */
 function intercept(list, args) {
   var i, len, val;
 
@@ -170,6 +311,7 @@ function intercept(list, args) {
 }
 
 
+/** @private */
 function resolve(module) {
   try {
     return require.resolve(module);
