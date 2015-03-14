@@ -258,8 +258,23 @@ exports.isActive = function () {
  *
  *     barney.intercept('foo', barney.notFound);
  *
+ * @throws {Error} A `MODULE_NOT_FOUND` error.
+ *
+ * @also
+ *
+ * If called with a single argument, adds an interceptor to the given module
+ * which will throw a `MODULE_NOT_FOUND` error like the one thrown by the
+ * original `require()`.
+ *
+ * @params {string} module The missing module.
+ * @returns {barney} The barney module itself.
  */
-exports.notFound = function () {
+exports.notFound = function (module) {
+  if (arguments.length === 1 && typeof module === 'string') {
+    exports.intercept(module, exports.notFound);
+    return exports;
+  }
+
   var err = new Error('Module not found');
   err.code = 'MODULE_NOT_FOUND';
   throw err;

@@ -641,7 +641,55 @@ describe('barney', function () {
         expect(barney.notFound).to.be.a('function');
       });
 
-      it('throws a module not found error', function () {
+      it('throws a module not found error (if called without args)',
+        function () {
+          var errOriginal;
+          var errFake;
+
+          try {
+            require('foo');
+          } catch (err) {
+            errOriginal = err;
+          }
+
+          try {
+            barney.notFound();
+          } catch (err) {
+            errFake = err;
+          }
+
+          expect(errOriginal).to.be.defined;
+          expect(errFake).to.be.defined;
+
+          expect(errOriginal.code).to.equal(errFake.code);
+        });
+
+      it('throws a module not found error (if called with more than one arg)',
+        function () {
+          var errOriginal;
+          var errFake;
+
+          try {
+            require('foo');
+          } catch (err) {
+            errOriginal = err;
+          }
+
+          try {
+            // A rough simulation of using this as an interceptor, i.e.
+            // barney.intercept('foo', barney.notFound);
+            barney.notFound('foo', {}, false);
+          } catch (err) {
+            errFake = err;
+          }
+
+          expect(errOriginal).to.be.defined;
+          expect(errFake).to.be.defined;
+
+          expect(errOriginal.code).to.equal(errFake.code);
+        });
+
+      it('adds an interceptor if called with a module', function () {
         var errOriginal;
         var errFake;
 
@@ -651,8 +699,13 @@ describe('barney', function () {
           errOriginal = err;
         }
 
+        // We know that TEST_MODULE is an existing module
+        barney.notFound(TEST_MODULE);
+
         try {
-          barney.notFound();
+          // A rough simulation of using this as an interceptor, i.e.
+          // barney.intercept('foo', barney.notFound);
+          require(TEST_MODULE);
         } catch (err) {
           errFake = err;
         }
@@ -661,7 +714,7 @@ describe('barney', function () {
         expect(errFake).to.be.defined;
 
         expect(errOriginal.code).to.equal(errFake.code);
-      });
+      })
     });
 
   });
