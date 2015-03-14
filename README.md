@@ -1,4 +1,4 @@
-node-barney ![Build Status](https://codeship.com/projects/ce6bd040-ac83-0132-acda-4e5346bb67f3/status?branch=v1.0)
+barney ![Build Status](https://codeship.com/projects/ce6bd040-ac83-0132-acda-4e5346bb67f3/status?branch=v1.0)
 ===========
 
 [![NPM version](https://badge.fury.io/js/barney.svg)](http://badge.fury.io/js/barney)

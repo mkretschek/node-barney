@@ -1,5 +1,5 @@
 {
-  "name": "node-barney",
+  "name": "barney",
   "version": "1.0.1",
   "description": "Intercept require calls",
   "main": "index.js",
