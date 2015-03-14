@@ -23,6 +23,28 @@ npm install barney
 Once you require `barney`, `require()` will already be hooked. Just add
 `hook`s and `interceptor`s.
 
+```js
+var barney = require('barney');
+
+// Add a hook to the `foo` module
+barney.hook('foo', 'bar');
+var foo = require('foo');
+assert.equal(foo, 'bar');
+
+var count = 0;
+
+// Add an interceptor
+barney.intercept(function () {
+  count += 1;
+});
+
+var path = require('path');
+var fs = require('fs');
+assert.equal(count, 2);
+```
+
+See the complete [API reference](#node-barney-api-reference).
+
 ### Interceptors
 
 Interceptors are functions called whenever you require a module. Interceptors
@@ -194,6 +216,104 @@ can specify a module to be cleared: `barney.reset('foo')`.
 
 In case you need to force the original loader to reload a module (`require()`
 caches the loaded modules), you can do so using `barney.unload('foo')`.
+
+
+<a id="node-barney-api-reference"></a>
+## Reference
+
+> **NOTE:** unless otherwise stated, all methods are chainable.
+
+### barney.hook()
+
+Activates `barney`'s hooks. This is automatically called the first
+time `barney` is required.
+
+---
+
+### barney.restore() (or `barney.unhook()`)
+
+Restores the original `require()` method. Hooks and interceptors are kept.
+See `barney.reset()` for removing hooks and interceptors.
+
+---
+
+### barney.hook(module, value)
+
+Sets the hooked value for the given module. Future calls to `require(module)`
+will return `value` (unless an interceptor returns a different value).
+
+---
+
+### barney.intercept(function[, index])
+
+Adds a generic interceptor to the stack. The interceptor will be executed
+for **all** future calls to `require()` (for all modules). If it returns a
+truthy value, that will be the value returned by `require()`.
+
+If `index` is defined, the interceptor will be inserted at the given index.
+
+Interceptors cannot be added twice.
+
+---
+
+### barney.intercept(module, function[, index])
+
+Same as the previous, but adds the interceptor to a specific `module`.
+
+---
+
+### barney.reset([module])
+
+Removes all hooks and interceptors. If a `module` is defined, removes hooks
+and interceptors for that module only.
+
+---
+
+### barney.unload(module)
+
+Removes the cached value for `module` from the original `require()` cache.
+
+---
+
+### barney.use(module, value)
+
+Alias for `barney.hook(module, value)`.
+
+---
+
+### barney.use(module, function, false)
+
+Alias for `barney.intercept(module, function)`.
+
+---
+
+### barney.use(function)
+
+Alias for `barney.intercept(function)`.
+
+---
+
+### barney.isActive() (not chainable)
+
+Returns `true` if barney is hooked into `require()`.
+
+---
+
+### barney.notFound([module]) (not chainable if called without args)
+
+If a `module` is defined, adds an interceptor that will throw a
+"MODULE_NOT_FOUND" error.
+
+```js
+barney.notFound('foo');
+```
+
+If called without arguments (or with more than one argument), throws a
+"MODULE_NOT_FOUND" error to help simulating missing modules.
+
+```js
+barney.intercept('foo', barney.notFound);
+```
 
 
 ## Example
