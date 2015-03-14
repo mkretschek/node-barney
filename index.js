@@ -36,7 +36,7 @@ var originalLoadMethod = Module._load;
  * @returns {*}
  * @private
  */
-function hookedLoadMethod(request, parent, isMain) {
+function hookedLoadMethod(request/*, parent, isMain*/) {
   var args = arguments;
   var resolved = resolve(request);
 
@@ -305,7 +305,7 @@ function intercept(list, args) {
   if (list) {
     for (i = 0, len = list.length; i < len; i += 1) {
       val = list[i].apply(null, args);
-      if (val) return val;
+      if (val) { return val; }
     }
   }
 }

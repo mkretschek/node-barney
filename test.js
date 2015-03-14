@@ -1,6 +1,6 @@
 'use strict';
 
-/* jshint mocha:true, expr:true */
+/* jshint mocha:true, expr:true, maxstatements:30 */
 
 var Module = require('module');
 
