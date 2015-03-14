@@ -173,6 +173,19 @@ describe('barney', function () {
         expect(interceptor).to.have.been.calledThrice;
       });
 
+      it('prevents duplicate interceptors', function () {
+        var interceptor = sinon.stub();
+
+        barney.intercept(interceptor);
+        barney.intercept(interceptor);
+        barney.intercept(interceptor);
+
+        barney.hook('foo', 'foo');
+
+        require('foo');
+        expect(interceptor).to.have.been.calledOnce;
+      });
+
       it('allows chaining', function () {
         expect(barney.intercept(function () {})).to.equal(barney);
       });
@@ -209,6 +222,20 @@ describe('barney', function () {
         expect(interceptor2).to.have.been.calledBefore(interceptor3);
       });
 
+      it('prevents duplicate interceptors', function () {
+        var interceptor1 = sinon.stub();
+        var interceptor2 = sinon.stub();
+
+        barney.intercept(interceptor1);
+        barney.intercept(interceptor2, 0);
+        barney.intercept(interceptor2, 0);
+
+        barney.hook('foo', 'foo');
+
+        require('foo');
+        expect(interceptor2).to.have.been.calledOnce;
+      });
+
       it('allows chaining', function () {
         expect(barney.intercept(function () {}, 0)).to.equal(barney);
       });
@@ -232,6 +259,19 @@ describe('barney', function () {
 
         require('bar');
         expect(interceptor).not.to.have.been.called;
+
+        require('foo');
+        expect(interceptor).to.have.been.calledOnce;
+      });
+
+      it('prevents duplicate interceptors', function () {
+        var interceptor = sinon.stub();
+
+        barney.intercept('foo', interceptor);
+        barney.intercept('foo', interceptor);
+        barney.intercept('foo', interceptor);
+
+        barney.hook('foo', 'foo');
 
         require('foo');
         expect(interceptor).to.have.been.calledOnce;
@@ -280,6 +320,20 @@ describe('barney', function () {
           expect(interceptor4).to.have.been.calledBefore(interceptor2);
           expect(interceptor2).to.have.been.calledBefore(interceptor3);
         });
+
+      it('prevents duplicate interceptors', function () {
+        var interceptor1 = sinon.stub();
+        var interceptor2 = sinon.stub();
+
+        barney.intercept('foo', interceptor1);
+        barney.intercept('foo', interceptor2, 0);
+        barney.intercept('foo', interceptor2, 0);
+
+        barney.hook('foo', 'foo');
+
+        require('foo');
+        expect(interceptor2).to.have.been.calledOnce;
+      });
 
       it('allows chaining', function () {
         expect(barney.intercept('foo', function () {}, 0)).to.equal(barney);
