@@ -255,7 +255,7 @@ exports.isActive = function () {
 exports.notFound = function () {
   var err = new Error('Module not found');
   err.code = 'MODULE_NOT_FOUND';
-  throw(err);
+  throw err;
 };
 
 
@@ -303,7 +303,8 @@ function intercept(list, args) {
   var i, len, val;
 
   if (list) {
-    for (i = 0, len = list.length; i < len; i += 1) {
+    len = list.length;
+    for (i = 0; i < len; i += 1) {
       val = list[i].apply(null, args);
       if (val) { return val; }
     }
