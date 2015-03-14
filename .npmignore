@@ -1,0 +1,17 @@
+node_modules/
+coverage/
+test/
+logs/
+
+CHANGELOG.md
+gulpfile.js
+test.js
+.npmignore
+.git*
+.jshintrc
+*.swp
+*.log
+*.tgz
+
+# WebStorm files
+.idea
