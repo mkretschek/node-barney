@@ -320,21 +320,30 @@ barney.hook('xhr', xhrStub);
 // the actual `xhr` module.
 var myModule = require('./my-module');
 
-describe('.load(url, callback)', function () {
-  ...
-  it('calls the callback on success', function () {
-    // `xhr`'s original signature is `xhr(config, callback)`, so we make the
-    // stub call the second argument (index 1) passed to it...
-    xhrStub.callArgWith(1, null, {status: 200});
+describe('myModule', function () {
+  after(function () {
+    barney.reset();
+    barney.restore();
+  });
 
-    var callback = sinon.stub();
-    myModule.load('./foo/bar/baz.json', callback);
-
-    expect(xhrStub).to.have.been.called;
-    expect(callback).to.have.been.called;
+  describe('.load(url, callback)', function () {
     ...
+    it('calls the callback on success', function () {
+      // `xhr`'s original signature is `xhr(config, callback)`, so we make the
+      // stub call the second argument (index 1) passed to it...
+      xhrStub.callArgWith(1, null, {status: 200});
+
+      var callback = sinon.stub();
+      myModule.load('./foo/bar/baz.json', callback);
+
+      expect(xhrStub).to.have.been.called;
+      expect(callback).to.have.been.called;
+      ...
+    });
   });
 });
+
+
 
 ```
 
