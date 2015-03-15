@@ -714,7 +714,7 @@ describe('barney', function () {
         expect(errFake).to.be.defined;
 
         expect(errOriginal.code).to.equal(errFake.code);
-      })
+      });
     });
 
   });
