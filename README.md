@@ -18,6 +18,12 @@ As usual:
 npm install barney
 ```
 
+Tests can be run with:
+
+```bash
+npm test
+```
+
 ## Usage
 
 Once you require `barney`, `require()` will already be hooked. Just add
