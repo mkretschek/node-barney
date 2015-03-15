@@ -236,7 +236,9 @@ time `barney` is required.
 
 ---
 
-### barney.restore() (or `barney.unhook()`)
+### barney.restore()
+
+**Or `barney.unhook()`**
 
 Restores the original `require()` method. Hooks and interceptors are kept.
 See `barney.reset()` for removing hooks and interceptors.
@@ -265,6 +267,15 @@ Interceptors cannot be added twice.
 ### barney.intercept(module, function[, index])
 
 Same as the previous, but adds the interceptor to a specific `module`.
+
+---
+
+### barney.require(module)
+
+**Or `barney.skip(module)`**
+
+Loads the module using the original `require()` function (skips all hooks
+and interceptors).
 
 ---
 
@@ -299,13 +310,17 @@ Alias for `barney.intercept(function)`.
 
 ---
 
-### barney.isActive() (not chainable)
+### barney.isActive()
+
+**Not chainable**
 
 Returns `true` if barney is hooked into `require()`.
 
 ---
 
-### barney.notFound([module]) (not chainable if called without args)
+### barney.notFound([module])
+
+**Not chainable if called without args**
 
 If a `module` is defined, adds an interceptor that will throw a
 "MODULE_NOT_FOUND" error.
