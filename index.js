@@ -281,6 +281,14 @@ exports.notFound = function (module) {
 };
 
 
+exports.require = function (request) {
+  return originalLoadMethod.call(Module, request, module.parent, false);
+};
+
+
+exports.skip = exports.require;
+
+
 exports.hook();
 
 

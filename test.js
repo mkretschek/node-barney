@@ -717,5 +717,34 @@ describe('barney', function () {
       });
     });
 
+
+    describe('.require(module)', function () {
+      it('is a function', function () {
+        expect(barney.require).to.be.a('function');
+      });
+
+      it('returns the original module', function () {
+        barney.hook(TEST_MODULE, 'foobar');
+
+        var val = barney.require(TEST_MODULE);
+        expect(val).to.equal(ORIGINAL_TEST_MODULE);
+        expect(val).to.not.equal('foobar');
+      });
+
+      it('skips all interceptors', function () {
+        var interceptor = sinon.stub();
+
+        barney.intercept(TEST_MODULE, interceptor);
+
+        barney.require(TEST_MODULE);
+        expect(interceptor).to.not.have.been.called;
+      });
+    });
+
+    describe('.skip(module)', function () {
+      it('aliases .require()', function () {
+        expect(barney.skip).to.equal(barney.require);
+      });
+    });
   });
 });
