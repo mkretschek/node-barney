@@ -4,7 +4,9 @@
   "description": "Intercept require calls",
   "main": "index.js",
   "scripts": {
-    "test": "./node_modules/.bin/istanbul cover -x test.js ./node_modules/mocha/bin/_mocha -- --reporter=spec ./test.js"
+    "lint": "gulp lint",
+    "test-and-coverage": "./node_modules/.bin/istanbul cover -x test.js ./node_modules/mocha/bin/_mocha -- --reporter=spec ./test.js",
+    "test": "npm run lint && npm run test-and-coverage"
   },
   "repository": {
     "type": "git",
