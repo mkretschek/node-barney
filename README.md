@@ -168,33 +168,6 @@ assert.equal(xhr, xhrStub);
 >
 
 
-### The `.use()` function
-
-`barney.use()` wraps `.intercept()` and `.hook()` in a way that may make more
-sense to some users. It's just a (slightly) different way of getting the
-same results:
-
-* Adding a **generic interceptor**:
-
-    ```js
-    barney.use(function () {...});
-    ```
-
-* Adding a **module-specific interceptor**:
-
-    ```js
-    // `false` indicates that the result should not be cached (which would
-    // be the same as adding a hook). Without it, the `function` itself
-    // would be returned by `require('foo')`.
-    barney.use('foo', function () {...}, false);
-    ```
-
-* Adding a **hook**:
-
-    ```js
-    barney.use('foo', stub);
-    ```
-
 ## Priorities
 
 This is an overview of the priorities when loading a module:
@@ -227,7 +200,7 @@ caches the loaded modules), you can do so using `barney.unload('foo')`.
 <a id="node-barney-api-reference"></a>
 ## Reference
 
-> **NOTE:** unless otherwise stated, all methods are chainable.
+> **NOTE:** all methods are chainable unless stated otherwise.
 
 ### barney.hook()
 
@@ -292,24 +265,6 @@ Removes the cached value for `module` from the original `require()` cache.
 
 ---
 
-### barney.use(module, value)
-
-Alias for `barney.hook(module, value)`.
-
----
-
-### barney.use(module, function, false)
-
-Alias for `barney.intercept(module, function)`.
-
----
-
-### barney.use(function)
-
-Alias for `barney.intercept(function)`.
-
----
-
 ### barney.isActive()
 
 **Not chainable**
@@ -323,14 +278,14 @@ Returns `true` if barney is hooked into `require()`.
 **Not chainable if called without args**
 
 If a `module` is defined, adds an interceptor that will throw a
-"MODULE_NOT_FOUND" error.
+`MODULE_NOT_FOUND` error.
 
 ```js
 barney.notFound('foo');
 ```
 
 If called without arguments (or with more than one argument), throws a
-"MODULE_NOT_FOUND" error to help simulating missing modules.
+`MODULE_NOT_FOUND` error to help simulating missing modules.
 
 ```js
 barney.intercept('foo', barney.notFound);

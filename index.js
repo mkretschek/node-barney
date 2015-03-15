@@ -88,6 +88,11 @@ function hookedLoadMethod(request/*, parent, isMain*/) {
  * @returns {barney} Returns the `barney` module itself.
  */
 exports.use = function (module, value, cache) {
+  console.warn(
+    'barney.use() is deprecated. ' +
+    'Use .hook() and .intercept() instead.'
+  );
+
   if (typeof module === 'function') {
     value = module;
     module = null;
