@@ -313,7 +313,7 @@ var xhrStub = sinon.stub();
 // in order to simplify our tests.
 //
 // In this example, we can avoid the actual HTTP request that the `xhr` module
-// would make by using a stub and could make some tests synchronous.
+// would make by using a stub.
 barney.hook('xhr', xhrStub);
 
 // All `require('xhr')` in `myModule` will now use the `xhrStub` instead of
@@ -328,19 +328,19 @@ describe('myModule', function () {
 
   describe('.load(url, callback)', function () {
     ...
-    it('calls the callback on success', function () {
+    it('calls the callback on success', function (done) {
       // `xhr`'s original signature is `xhr(config, callback)`, so we make the
       // stub call the second argument (index 1) passed to it...
-      xhrStub.callArgWith(1, null, {status: 200});
+      xhrStub.callArgWithAsync(1, null, {status: 200});
 
       var callback = sinon.stub();
-      myModule.load('./foo/bar/baz.json', callback);
+      myModule.load('./foo/bar/baz.json', done);
 
       expect(xhrStub).to.have.been.called;
-      expect(callback).to.have.been.called;
-      ...
     });
   });
+
+  ...
 });
 
 
